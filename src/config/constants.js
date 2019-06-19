@@ -1,5 +1,5 @@
 export default {
-  WIDTH: 256,
-  HEIGHT: 272,
+  WIDTH: 512,
+  HEIGHT: 544,
   backgroundColor: 0x000000,
 };
