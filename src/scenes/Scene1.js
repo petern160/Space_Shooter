@@ -6,6 +6,7 @@ import ship from "../assets/s1sprite.png";
 import ship2 from "../assets/s2sprite.png";
 import ship3 from "../assets/s3sprite.png";
 import explosion from "../assets/explosion.png";
+import powerup from "../assets/power-up.png";
 
 
 class Scene1 extends Phaser.Scene {
@@ -28,6 +29,10 @@ class Scene1 extends Phaser.Scene {
       frameHeight: 32,
     })
     this.load.spritesheet('explosion', explosion, {
+      frameWidth: 16,
+      frameHeight: 16,
+    })
+    this.load.spritesheet('powerup', powerup,{
       frameWidth: 16,
       frameHeight: 16,
     })
