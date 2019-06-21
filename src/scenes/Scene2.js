@@ -46,7 +46,7 @@ class Scene1 extends Phaser.Scene {
       // adds tilesprite instead of image for moving background
     this.background = this.add.tileSprite(0,0, width, height, 'background')
     // set background origin to top left scales image by two
-    this.background.setScale(2)
+    this.background.setScale(1)
     this.background.setOrigin(0,0)
 
     this.ship1 = this.add.sprite(width/2 -50, height/2, "ship")
@@ -116,9 +116,14 @@ class Scene1 extends Phaser.Scene {
 
     // overlap parameters, callback then scope
     this.physics.add.overlap(this.player, this.enemies, this.hurtPlayer, null, this);
-  
+   
+    
   }
 
+  hitEnemy(projectile, enemy){
+      projectile.destroy()
+      this.resetShipPos(enemy)
+  }
   // callback function for overlap of player and powerUp
   pickPowerUp(player, powerUp){
       powerUp.disableBody(true, true)
@@ -176,10 +181,13 @@ shootBeam(){
     this.beam.setScale(2)
     this.projectiles = this.add.group()
     this.projectiles.add(this.beam)
+    // fixes projectile bouncing off powerup
     this.physics.add.collider(this.projectiles, this.powerUps, function(projectile, powerUp){
         projectile.destroy()
     })
-    // beam.setScale(1.5)
+    // destroys enemy and resets position
+    this.physics.add.overlap(this.projectiles, this.enemies, this.hitEnemy, null, this);
+   
 }
 
   update() {
