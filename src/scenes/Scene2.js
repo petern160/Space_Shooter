@@ -2,14 +2,42 @@
 /* eslint-disable class-methods-use-this */
 import Phaser from "phaser";
 
+let gameSettings = {
+    playerSpeed: 200,
+  }
 
 let height = 544;
-let width = 512
+let width = 512;
+let bullet;
+
+
+  
+class Beam extends Phaser.GameObjects.Sprite {
+  constructor(scene) {
+      var x = scene.player.x
+      var y = scene.player.y
+    super(scene, x, y, 'beam');
+    // scene.projectiles.add(this);
+  }
+
+  update(){
+      if(this.y < 32){
+          this.destroy();
+          console.log('hey')
+      }
+  }
+
+}
+
+
+  
 
 class Scene1 extends Phaser.Scene {
   constructor() {
     super({ key: "playGame" });
   }
+
+  
 
   preload() {}
   
@@ -28,69 +56,32 @@ class Scene1 extends Phaser.Scene {
     this.ship3 = this.add.sprite(width/2 + 50, height/2, "ship3")
     this.ship3.setScale(1.5)
 
-    this.anims.create({
-        // animation name
-        key:'ship1_anim',
-        // frames from ship spritesheet
-        frames: this.anims.generateFrameNumbers("ship"),
-        frameRate: 20,
-        // -1 infinite loop
-        repeat:-1
-    })
+    // bullet = this.play(b)
+    
+    // spawns player and sets the animation
+    this.player= this.physics.add.sprite(width / 2 -8, height -64, "player");
+    this.player.play('thrust')
+    // allows input from keyboard
+    this.cursorKeys = this.input.keyboard.createCursorKeys();
+    this.player.setCollideWorldBounds(true);
+    // spacebar key to shoot
+    this.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
+    this.beam = this.physics.add.sprite(this.player.x, this.player.y, "beam")
+    this.beam.setScale(0.01)
+    
+    this.projectiles = this.add.group()
+    this.projectiles.add(this.beam)
 
-    this.anims.create({
-        
-        key:'ship2_anim',
-        frames: this.anims.generateFrameNumbers("ship2"),
-        frameRate: 20,
-        repeat:-1
-    })
-
-    this.anims.create({
-        
-        key:'ship3_anim',
-        frames: this.anims.generateFrameNumbers("ship3"),
-        frameRate: 20,
-        repeat:-1,
-   
-    })
-
-    this.anims.create({
-        
-        key:'explode',
-        frames: this.anims.generateFrameNumbers("explosion"),
-        frameRate: 20,
-        repeat:0,
-        // disappears once completed
-        hideOnComplete: true
-    })
-
-    this.anims.create({
-        key: "red",
-        frames: this.anims.generateFrameNumbers("powerup",{
-            start:0,
-            end:1
-        }),
-        frameRate: 20,
-        repeat: -1
-    });
-    this.anims.create({
-        key: "grey",
-        frames: this.anims.generateFrameNumbers("powerup",{
-            start:2,
-            end:3
-        }),
-        frameRate: 20,
-        repeat: -1
-    });
-
+    // powerups
     this.powerUps = this.physics.add.group();
+    // power up quanitiy
     var maxObjects = 4;
     for (var i = 0; i < maxObjects; i++){
         var powerUp = this.physics.add.sprite(16, 16, "powerup");
         this.powerUps.add(powerUp)
         powerUp.setRandomPosition(0, 0, width, height);
         powerUp.setScale(1.2)
+        // spawns randomly red or grey
         if (Math.random() > 0.5){
             powerUp.play('red')
         } 
@@ -111,11 +102,33 @@ class Scene1 extends Phaser.Scene {
     this.ship2.setInteractive();
     this.ship3.setInteractive();
 
+    this.enemies = this.physics.add.group();
+    this.enemies.add(this.ship1);
+    this.enemies.add(this.ship2);
+    this.enemies.add(this.ship3);
+
     // on click down does call back of destroyship() then passes in scope of this
     this.input.on('gameobjectdown', this.destroyShip, this)
-    
-    this.add.text(20, 20, 'PLAYING GAME', {font: "25px Arial", fill: "yellow"});
   
+    this.add.text(20, 20, 'PLAYING GAME', {font: "25px Arial", fill: "yellow"});
+    this.physics.add.collider(this.projectiles, this.powerUps)
+    this.physics.add.overlap(this.player, this.powerUps, this.pickPowerUp, null, this);
+
+    // overlap parameters, callback then scope
+    this.physics.add.overlap(this.player, this.enemies, this.hurtPlayer, null, this);
+  
+  }
+
+  // callback function for overlap of player and powerUp
+  pickPowerUp(player, powerUp){
+      powerUp.disableBody(true, true)
+  }
+
+  // call back function for overlap of player and enemies
+  hurtPlayer(player, enemy){
+    this.resetShipPos(enemy);
+    player.x = width / 2 - 8;
+    player.y = height - 64;
   }
 
  
@@ -139,13 +152,56 @@ class Scene1 extends Phaser.Scene {
       gameObject.play("explode")
   }
 
+  movePlayerManager(){
+    if(this.cursorKeys.left.isDown){
+        this.player.setVelocityX(-150);
+    }else if (this.cursorKeys.right.isDown){
+        this.player.setAccelerationX(150);
+    }
+
+    if(this.cursorKeys.up.isDown){
+        this.player.setVelocityY(-150);
+    }else if (this.cursorKeys.down.isDown){
+        this.player.setAccelerationY(150);
+    }
+}
+
+
+shootBeam(){
+    // let beam = new Beam(this)
+    this.beam = this.physics.add.sprite(this.player.x, this.player.y, "beam")
+    this.beam.play('beam_anim')
+    this.beam.body.setEnable()
+    this.beam.body.velocity.y = -250;
+    this.beam.setScale(2)
+    this.projectiles = this.add.group()
+    this.projectiles.add(this.beam)
+    this.physics.add.collider(this.projectiles, this.powerUps, function(projectile, powerUp){
+        projectile.destroy()
+    })
+    // beam.setScale(1.5)
+}
+
   update() {
       this.moveShip(this.ship1, 2)
       this.moveShip(this.ship2, 2.5)
       this.moveShip(this.ship3, 3.3)
       // changes texture backgorund for moving effect
       this.background.tilePositionY -= 0.5;
+      this.movePlayerManager()
+
+      if(Phaser.Input.Keyboard.JustDown(this.spacebar)){
+         this.shootBeam();
+      }
+
+     for(var i = 0; i < this.projectiles.getChildren().length; i ++){
+         var beam = this.projectiles.getChildren()[i];
+         beam.update()
+     }
+
   }
+
+  
 }
 
 export default Scene1;

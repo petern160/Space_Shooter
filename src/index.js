@@ -7,6 +7,7 @@ import constants from "./config/constants";
 import Scene1 from "./scenes/Scene1";
 import Scene2 from "./scenes/Scene2";
 
+
 const config = {
   type: Phaser.AUTO,
   width: constants.WIDTH,
@@ -17,7 +18,7 @@ const config = {
     default: "arcade",
     arcade: {
       // gravity: {
-      //   y: 200
+      //   y: 200,
       // },
       debug: false
     }
