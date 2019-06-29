@@ -111,8 +111,8 @@ class Scene1 extends Phaser.Scene {
     graphics.moveTo(0, 0);
     graphics.lineTo(width, 0);
     graphics.lineTo(width, 20);
-    graphics.lineTo(0, 30);
-    graphics.lineTo(0, 30);
+    graphics.lineTo(0, 20);
+    graphics.lineTo(0, 0);
     //
     graphics.closePath();
     graphics.fillPath();

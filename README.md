@@ -1,23 +1,20 @@
 # Phaser 3 Space Shooter Game
 
-<!-- 🎮 A Minimal Boilerplate to your phaser 3 game with Parcel-bundler  -->
+![](game.gif)
 
-<!-- <div style="text-align:center"><img src ="https://i.imgur.com/b9aFxtD.jpg" /></div> -->
+## About Me
 
-## Features
-
-* ES6
-* ESlint
+A web top down web game shooter where each time you shoot down an enemy you gain points. It is an old fashioned based shooter game
+that is built with phaser 3, Javascript, Babel. You move with the arrow keys on the keyboard and you can hit spacebar to shoot bullets.
 
 ## setup
 
+> has hot reload
 
 > npm i
 
 > npm start
 
-
 ## Goals
 
-* [x] make a space-shooter game in phaser 3
-
+- [x] make a space-shooter game in phaser 3
